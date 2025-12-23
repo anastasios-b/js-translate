@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation demo</title>
+
+    <style>
+        * {
+            font-size: 2vw;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        nav {
+            display: flex;
+            gap: 2vw;
+        }
+        .language-switcher {
+            cursor: pointer;
+            width: 4vw;
+            min-width: 32px;
+            border-bottom: 2px solid black;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    
+    <header>
+        <nav>
+            <div class="language-switcher" onClick="changeLanguage('el')">EL</div>
+            <div class="language-switcher" onClick="changeLanguage('en')">EN</div>
+        </nav>
+    </header>
+    
+    <h1 aria-translate="true" aria-translate-key="welcome message"></h1>
+    <h2 aria-translate="true" aria-translate-key="welcome description"></h2>
+    <ol>
+        <li aria-translate="true" aria-translate-key="feature 1"></li>
+        <li aria-translate="true" aria-translate-key="feature 2"></li>
+    </ol>
+    
+    <script src="./index.js"></script>
+</body>
+</html>
