@@ -1,10 +1,12 @@
 # JS Translate
-A simple JS library to translate your website. Supports multiple languages and is really simple to install!
+A simple JS library to translate your website.<br>
+Supports multiple languages and is really simple to install.<br>
+Can be used with React, Vue, Angular, Laravel and any library and framework that renders HTML.
 
 ## Installation Steps
 1. Download the code.
 2. Drag-n-drop the folder inside your website's desired folder.
-3. Call the **index.js** script in your HTML pages at the end of the <body> element.
+3. Add a ```<script>``` tag with ```./index.js``` as source in your HTML pages at the end of the <body> element (modify the script tag's path according to the actual script's file path in your codebase).
 
 ## Add more languages
 1. Go inside the **translations** folder.
