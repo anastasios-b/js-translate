@@ -12,3 +12,8 @@ A simple JS library to translate your website. Supports multiple languages and i
 3. Inside the file, create a JSON array. Each JSON key is what you will be using in the HTML to identify the element (stays the same in all languages) and the value is the translated text of the key (changes depending on the language).
 4. In your HTML code, mark the desired elements as such: aria-translate="true" aria-translate-key="welcome message".
 5. In your HTML code, add elements to act as language switchers. Make them call the changeLanguage("language_code") when clicked (onClick event).
+
+## Test the library
+1. Install [Node.js](https://nodejs.org/en/download).
+2. Run ```node .\server.js```.
+3. Visit ```http://localhost:3000``` on your browser.
