@@ -19,8 +19,15 @@ Example:
     "welcome description": "Einfach zu installieren, zu verwenden und anzupassen"
 }
 ```
-4. In your HTML code, mark the desired elements as such: aria-translate="true" aria-translate-key="welcome message".
-5. In your HTML code, add elements to act as language switchers. Make them call the changeLanguage("language_code") when clicked (onClick event).
+4. In your HTML code, mark the desired elements as such: aria-translate="true" aria-translate-key="welcome message". Example:
+```
+<div aria-translate="true" aria-translate-key="welcome message"></div>
+```
+5. In your HTML code, add elements to act as language switchers. Make them call the changeLanguage("language_code") when clicked (onClick event). Example:
+```
+<div class="language-switcher" onClick="changeLanguage('de')">DE</div>
+```
+6. That's it! Your new language is now added and ready to be used in the frontend.
 
 ## Test the library
 1. Install [Node.js](https://nodejs.org/en/download).
