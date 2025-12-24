@@ -1,7 +1,7 @@
 # JS Translate
-a. A simple JS library to translate your website.<br>
-a. Supports multiple languages and is really simple to install.<br>
-a. Can be used with React, Vue, Angular, Laravel and any library and framework that renders HTML.
+A simple JS library to translate your website.<br>
+Supports multiple languages and is really simple to install.<br>
+Can be used with React, Vue, Angular, Laravel and any library and framework that renders HTML.
 
 # Installation steps
 a. Download the code.<br>
