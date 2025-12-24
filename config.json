@@ -1,0 +1,4 @@
+{
+    "recognize_language_by": "url_parameter",
+    "language_key": "language"
+}

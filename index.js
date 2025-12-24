@@ -1,10 +1,28 @@
 // Load this file in the DOM at the ending of the <body> element to activate the library
 
 
+// Load config and settings
+const loadConfig = async () => {
+    try {
+        const response = await fetch(`/config.json`);
+        if (!response.ok) {
+            throw new Error(`Config file is missing. Create a config.json to set up the translation rules.`);
+        }
+
+        const config = await response.json();
+        console.log(config);
+        return config;
+
+    } catch (error) {
+        console.error("Error loading config file:", error);
+        return null;
+    }
+}
+
 // Find the file for the current language code (if exists, else leave everything as it is)
 const findTranslationsForLanguage = async (languageCode) => {
     try {
-        const response = await fetch(`./translations/${languageCode}.json`);
+        const response = await fetch(`/translations/${languageCode}.json`);
         if (!response.ok) {
             throw new Error(`Translation file for ${languageCode} not found`);
         }
@@ -14,6 +32,7 @@ const findTranslationsForLanguage = async (languageCode) => {
 
     } catch (error) {
         console.error("Error loading translation file:", error);
+        return null;
     }
 }
 
@@ -67,6 +86,48 @@ const changeLanguage = async (languageCode) => {
 
         // First apply the translations to the elements
         applyTranslations(translationData);
+        
+        // Rebind events after translation
+        bindLanguageSwitchers();
+        
+        // Store language code or modify URL based on config
+        const config = await loadConfig();
+        
+        // Only proceed if config loading succeeded
+        if (!config) {
+            return;
+        }
+        
+        switch (config.recognize_language_by) {
+            case "url":
+                // Modify URL path to include language code
+                const pathSegments = window.location.pathname.split('/').filter(segment => segment);
+                // Remove existing language code if present
+                if (pathSegments.length > 0 && /^[a-z]{2}$/.test(pathSegments[0])) {
+                    pathSegments.shift();
+                }
+                // Build new URL with language code
+                const newPath = '/' + languageCode + (pathSegments.length > 0 ? '/' + pathSegments.join('/') : '/');
+                window.history.replaceState({}, '', newPath);
+                
+                // Rebind events after URL change
+                setTimeout(bindLanguageSwitchers, 10);
+                break;
+            case "url_parameter":
+                // Modify URL parameter
+                const url = new URL(window.location);
+                url.searchParams.set(config.language_key, languageCode);
+                window.history.replaceState({}, '', url.toString());
+                break;
+            case "cookie":
+                // Store in cookie
+                document.cookie = `${config.language_key}=${languageCode}; path=/; max-age=31536000`; // 1 year expiry
+                break;
+            case "local_storage":
+                // Store in localStorage
+                localStorage.setItem(config.language_key, languageCode);
+                break;
+        }
     }
 }
 
@@ -93,16 +154,97 @@ const monitorBrowserLanguageChange = () => {
     }, 1000);  // Check every second (can be adjusted to a longer interval)
 }
 
+// Change language depending on config.json file rules
+const detectLanguage = async () => {
+    // Load config data
+    const config = await loadConfig();
+    
+    // Return null if config loading failed
+    if (!config) {
+        return null;
+    }
+
+    console.log(config);
+
+    // Get language code depending on config rules
+    var languageKey = null;
+    if (config.recognize_language_by == 'cookie' || config.recognize_language_by == 'local_storage') {
+        languageKey = config.language_key;
+    }
+    var languageCode = null;
+    switch (config.recognize_language_by) {
+        case "url":
+            // Extract language code from URL path (e.g., /en/page or /el/page)
+            const pathSegments = window.location.pathname.split('/').filter(segment => segment);
+            if (pathSegments.length > 0) {
+                languageCode = pathSegments[0];
+            }
+            break;
+        case "url_parameter":
+            // Extract language code from URL parameter (e.g., ?lang=en or ?lang=el)
+            const urlParams = new URLSearchParams(window.location.search);
+            languageCode = urlParams.get(config.language_key);
+            break;
+        case "cookie":
+            // Extract language code from cookie
+            const cookies = document.cookie.split(';');
+            for (const cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === languageKey) {
+                    languageCode = value;
+                    break;
+                }
+            }
+            break;
+        case "local_storage":
+            // Extract language code from local storage
+            languageCode = localStorage.getItem(languageKey);
+            break;
+    }
+
+    return languageCode;
+}
+
 // Function to initiate the library (loads initial language and sets up monitoring)
 const initiateLibrary = async () => {
-    let currentLanguage = detectBrowserLanguage();
-   await changeLanguage(currentLanguage);
+    // Detect language based on config rules
+    let currentLanguage = await detectLanguage();
+    
+    // Fallback to browser language if no language detected from config method
+    if (!currentLanguage) {
+        currentLanguage = detectBrowserLanguage();
+    }
+    
+    await changeLanguage(currentLanguage);
 
-   // Watch for browser language changes
-   monitorBrowserLanguageChange();
+    // Watch for browser language changes
+    monitorBrowserLanguageChange();
+}
+
+// Function to bind language switcher events
+const bindLanguageSwitchers = () => {
+    const switchers = document.querySelectorAll('.language-switcher');
+    switchers.forEach(switcher => {
+        // Remove existing listeners to prevent duplicates
+        switcher.replaceWith(switcher.cloneNode(true));
+    });
+    
+    // Add new listeners
+    document.querySelectorAll('.language-switcher').forEach(switcher => {
+        switcher.addEventListener('click', (e) => {
+            const language = e.target.textContent.toLowerCase();
+            changeLanguage(language);
+        });
+    });
 }
 
 // Load the script once the DOM content is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     initiateLibrary();
+    
+    // Make changeLanguage globally accessible
+    window.changeLanguage = changeLanguage;
+    
+    // Bind language switcher events
+    bindLanguageSwitchers();
 });
